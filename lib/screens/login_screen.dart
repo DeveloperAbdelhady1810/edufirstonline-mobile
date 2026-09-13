@@ -10,9 +10,9 @@ import '../widgets/app_text_field.dart';
 
 /// Flagship screen (Step 4 checkpoint) - first impression of the app, and
 /// the one screen meant to showcase every element of the design system at
-/// once: gradient hero, Lottie welcome moment, typography scale, AppButton/
-/// AppTextField, staggered entrance animation, RTL-correct layout, and the
-/// required Quadro Cloud attribution.
+/// once: gradient hero, decorative shapes, Lottie welcome moment, typography
+/// scale, AppButton/AppTextField/AppBadge, staggered entrance animation,
+/// RTL-correct layout, and the required Quadro Cloud attribution.
 ///
 /// NOTE: this screen is visually complete but not yet wired to the real
 /// login API (POST /api/auth/login) - that's Step 5/Backend Integration,
@@ -78,7 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               .slideY(begin: 0.15, end: 0, delay: 150.ms, duration: 300.ms),
                           const SizedBox(height: AppSpacing.xs),
                           Text(
-                            'مرحباً بعودتك! سجّل دخولك للمتابعة في رحلتك التعليمية',
+                            'يلا نكمل رحلتك التعليمية! 🚀',
                             style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
                           ).animate().fadeIn(delay: 200.ms, duration: 300.ms),
                           const SizedBox(height: AppSpacing.xl),
@@ -117,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ).animate().fadeIn(delay: 400.ms, duration: 300.ms).slideY(
                               begin: 0.1, end: 0, delay: 400.ms, duration: 300.ms),
                           const SizedBox(height: AppSpacing.xl),
-                          const _OrDivider().let((w) => w.animate().fadeIn(delay: 450.ms)),
+                          const _OrDivider().animate().fadeIn(delay: 450.ms),
                           const SizedBox(height: AppSpacing.lg),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -149,49 +149,147 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xxl),
-      decoration: const BoxDecoration(
-        gradient: AppColors.primaryGradient,
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(AppSpacing.radiusXl),
-          bottomRight: Radius.circular(AppSpacing.radiusXl),
+    return ClipRRect(
+      borderRadius: const BorderRadius.only(
+        bottomLeft: Radius.circular(AppSpacing.radiusXl),
+        bottomRight: Radius.circular(AppSpacing.radiusXl),
+      ),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
+        decoration: const BoxDecoration(gradient: AppColors.primaryGradient),
+        child: Stack(
+          clipBehavior: Clip.none,
+          alignment: Alignment.center,
+          children: [
+            // Decorative translucent shapes - the difference between a flat
+            // corporate gradient banner and a hero that feels made for a
+            // student app. Purely decorative, doesn't affect layout.
+            Positioned(
+              top: -30,
+              left: -20,
+              child: _Blob(size: 100, opacity: 0.10),
+            ),
+            Positioned(
+              top: 20,
+              right: -35,
+              child: _Blob(size: 130, opacity: 0.12),
+            ),
+            Positioned(
+              bottom: -40,
+              right: 40,
+              child: _Blob(size: 80, opacity: 0.08),
+            ),
+
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Placeholder welcome animation - swap for a branded/
+                // education-themed Lottie once one is chosen; this one is
+                // only confirmed stable and free to use (hosted in the
+                // lottie package's own example assets), not a final
+                // creative pick.
+                SizedBox(
+                  height: 150,
+                  child: Lottie.network(
+                    'https://raw.githubusercontent.com/xvrh/lottie-flutter/master/example/assets/Mobilo/A.json',
+                    repeat: true,
+                    errorBuilder: (context, error, stackTrace) => const Icon(
+                      Icons.school_rounded,
+                      size: 80,
+                      color: Colors.white,
+                    ),
+                  ),
+                )
+                    .animate()
+                    .fadeIn(duration: 400.ms)
+                    .scale(
+                      begin: const Offset(0.9, 0.9),
+                      end: const Offset(1, 1),
+                      duration: 400.ms,
+                      curve: Curves.easeOut,
+                    )
+                    // Gentle idle float - the kind of small, constant motion
+                    // that makes a screen feel alive instead of static.
+                    .animate(onPlay: (c) => c.repeat(reverse: true))
+                    .moveY(begin: 0, end: -8, duration: 1600.ms, curve: Curves.easeInOut),
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  'EduFirstOnline',
+                  style: AppTypography.headline.copyWith(color: Colors.white),
+                ).animate().fadeIn(delay: 100.ms, duration: 300.ms),
+                const SizedBox(height: 2),
+                Text(
+                  'منصة "ذا فيرست" التعليمية',
+                  style: AppTypography.bodySmall.copyWith(color: Colors.white.withValues(alpha: 0.85)),
+                ).animate().fadeIn(delay: 150.ms, duration: 300.ms),
+                const SizedBox(height: AppSpacing.lg),
+                // Value-prop chips - gives a first-time student a reason to
+                // care in 3 seconds, and puts the gold accent color to real
+                // use instead of it sitting unused in the palette.
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    _FeatureChip(icon: Icons.menu_book_rounded, label: 'دروس شيقة'),
+                    SizedBox(width: AppSpacing.sm),
+                    _FeatureChip(icon: Icons.emoji_events_rounded, label: 'شارات وإنجازات'),
+                    SizedBox(width: AppSpacing.sm),
+                    _FeatureChip(icon: Icons.trending_up_rounded, label: 'تتبع تقدمك'),
+                  ],
+                ).animate().fadeIn(delay: 250.ms, duration: 350.ms).slideY(
+                    begin: 0.2, end: 0, delay: 250.ms, duration: 350.ms),
+              ],
+            ),
+          ],
         ),
       ),
-      child: Column(
+    );
+  }
+}
+
+class _Blob extends StatelessWidget {
+  const _Blob({required this.size, required this.opacity});
+
+  final double size;
+  final double opacity;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: opacity),
+        shape: BoxShape.circle,
+      ),
+    );
+  }
+}
+
+class _FeatureChip extends StatelessWidget {
+  const _FeatureChip({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.16),
+        borderRadius: BorderRadius.circular(AppSpacing.radiusPill),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Placeholder welcome animation - swap for a branded/education-
-          // themed Lottie once one is chosen; this one is only confirmed
-          // stable and free to use (hosted in the lottie package's own
-          // example assets), not a final creative pick.
-          SizedBox(
-            height: 130,
-            child: Lottie.network(
-              'https://raw.githubusercontent.com/xvrh/lottie-flutter/master/example/assets/Mobilo/A.json',
-              repeat: true,
-              errorBuilder: (context, error, stackTrace) => const Icon(
-                Icons.school_rounded,
-                size: 72,
-                color: Colors.white,
-              ),
-            ),
-          ).animate().fadeIn(duration: 400.ms).scale(
-                begin: const Offset(0.9, 0.9),
-                end: const Offset(1, 1),
-                duration: 400.ms,
-                curve: Curves.easeOut,
-              ),
-          const SizedBox(height: AppSpacing.md),
+          Icon(icon, size: 13, color: AppColors.gold),
+          const SizedBox(width: 4),
           Text(
-            'EduFirstOnline',
-            style: AppTypography.headline.copyWith(color: Colors.white),
-          ).animate().fadeIn(delay: 100.ms, duration: 300.ms),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            'منصة "ذا فيرست" التعليمية',
-            style: AppTypography.bodySmall.copyWith(color: Colors.white.withValues(alpha: 0.85)),
-          ).animate().fadeIn(delay: 150.ms, duration: 300.ms),
+            label,
+            style: AppTypography.caption.copyWith(color: Colors.white, fontWeight: FontWeight.w600),
+          ),
         ],
       ),
     );
@@ -231,8 +329,4 @@ class _QuadroCloudFooter extends StatelessWidget {
       ),
     ).animate().fadeIn(delay: 600.ms, duration: 400.ms);
   }
-}
-
-extension _Let<T> on T {
-  R let<R>(R Function(T) block) => block(this);
 }

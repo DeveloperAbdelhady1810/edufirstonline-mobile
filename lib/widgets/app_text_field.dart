@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_spacing.dart';
+import '../theme/app_theme.dart';
 import '../theme/app_typography.dart';
 
 /// The single text field used everywhere - relies entirely on the app-wide
@@ -68,7 +69,23 @@ class _AppTextFieldState extends State<AppTextField> {
           decoration: InputDecoration(
             hintText: widget.hint,
             errorText: widget.errorText,
-            prefixIcon: widget.prefixIcon != null ? Icon(widget.prefixIcon, size: 20) : null,
+            // A plain gray icon reads as a bare form field - a small colored
+            // circle behind it (same trick as AppBadge) makes every text
+            // field feel like a deliberate, friendly app control instead of
+            // generic Material chrome.
+            prefixIcon: widget.prefixIcon != null
+                ? Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(widget.prefixIcon, size: 18, color: AppColors.primaryDark),
+                    ),
+                  )
+                : null,
             suffixIcon: widget.obscureText
                 ? IconButton(
                     icon: Icon(_obscured ? Icons.visibility_outlined : Icons.visibility_off_outlined, size: 20),
