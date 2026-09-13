@@ -97,7 +97,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       });
       if (!mounted) return;
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const AppShell()),
+        MaterialPageRoute(builder: (_) => AppShell()),
         (route) => false,
       );
     } on ApiException catch (e) {

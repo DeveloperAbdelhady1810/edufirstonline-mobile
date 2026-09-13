@@ -12,8 +12,27 @@ import 'profile_screen.dart';
 /// Root shell after login - bottom nav + the 5 main tabs. Every tab keeps
 /// its own scroll/state alive via IndexedStack so switching tabs doesn't
 /// re-fetch data each time.
+///
+/// AppShell is only ever constructed once per login session (Splash/Login/
+/// Register all push a single instance), so it defaults its own key to a
+/// static GlobalKey - that's what lets [goToTab] reach the live tab-bar
+/// state from anywhere in the app (a "browse courses" quick-action button
+/// on the Home tab, say), without that caller needing a reference to this
+/// specific widget instance.
 class AppShell extends StatefulWidget {
-  const AppShell({super.key});
+  AppShell({Key? key}) : super(key: key ?? _globalKey);
+
+  static final GlobalKey<_AppShellState> _globalKey = GlobalKey<_AppShellState>();
+
+  /// Switches to the tab at [index] - use this instead of
+  /// `Navigator.push`-ing a bare tab screen (e.g. `DiscoverScreen()`)
+  /// directly. Pushing one directly creates a second, shell-less copy of
+  /// that screen with no bottom nav bar and no Scaffold/Material of its
+  /// own (this is exactly what caused the "no Material widget found" crash
+  /// and the "bottom nav doesn't come back" bug previously).
+  static void goToTab(int index) {
+    _globalKey.currentState?._goToTab(index);
+  }
 
   @override
   State<AppShell> createState() => _AppShellState();
@@ -21,6 +40,8 @@ class AppShell extends StatefulWidget {
 
 class _AppShellState extends State<AppShell> {
   int _index = 0;
+
+  void _goToTab(int index) => setState(() => _index = index);
 
   static const _tabs = [
     (icon: Icons.home_rounded, label: 'الرئيسية'),
@@ -60,7 +81,7 @@ class _AppShellState extends State<AppShell> {
                       icon: _tabs[i].icon,
                       label: _tabs[i].label,
                       selected: _index == i,
-                      onTap: () => setState(() => _index = i),
+                      onTap: () => _goToTab(i),
                     ),
                   ),
               ],

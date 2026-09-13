@@ -38,7 +38,7 @@ class SplashScreen extends StatelessWidget {
           );
         }
 
-        return auth.isAuthenticated ? const AppShell() : const LoginScreen();
+        return auth.isAuthenticated ? AppShell() : const LoginScreen();
       },
     );
   }

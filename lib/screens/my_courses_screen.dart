@@ -10,8 +10,8 @@ import '../widgets/app_card.dart';
 import '../widgets/decorative_header.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/loading_skeleton.dart';
+import 'app_shell.dart';
 import 'course_player_screen.dart';
-import 'discover_screen.dart';
 
 class MyCoursesScreen extends StatefulWidget {
   const MyCoursesScreen({super.key});
@@ -106,9 +106,7 @@ class _MyCoursesScreenState extends State<MyCoursesScreen> {
                             message: 'تصفح الحصص المتاحة وابدأ التعلم',
                             icon: Icons.video_library_outlined,
                             actionLabel: 'تصفح الحصص',
-                            onAction: () => Navigator.of(context).push(
-                              MaterialPageRoute(builder: (_) => const DiscoverScreen()),
-                            ),
+                            onAction: () => AppShell.goToTab(1),
                           ),
                         ],
                       );

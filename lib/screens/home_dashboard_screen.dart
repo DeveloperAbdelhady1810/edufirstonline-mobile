@@ -13,9 +13,8 @@ import '../widgets/decorative_header.dart';
 import '../widgets/empty_state.dart';
 import '../widgets/loading_skeleton.dart';
 import '../widgets/stat_chip.dart';
+import 'app_shell.dart';
 import 'course_player_screen.dart';
-import 'discover_screen.dart';
-import 'my_courses_screen.dart';
 import 'package_list_screen.dart';
 import 'teacher_list_screen.dart';
 
@@ -138,17 +137,17 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                               icon: Icons.explore_rounded,
                               iconBg: AppColors.primary,
                               label: 'تصفح الحصص',
-                              onTap: () => Navigator.of(context).push(
-                                MaterialPageRoute(builder: (_) => const DiscoverScreen()),
-                              ),
+                              // Switches the shell's own tab instead of
+                              // pushing a second, shell-less DiscoverScreen
+                              // (that used to leave the bottom nav bar
+                              // missing until the app was fully backed out).
+                              onTap: () => AppShell.goToTab(1),
                             ),
                             _QuickActionCard(
                               icon: Icons.video_library_rounded,
                               iconBg: AppColors.secondary,
                               label: 'حصصي',
-                              onTap: () => Navigator.of(context).push(
-                                MaterialPageRoute(builder: (_) => const MyCoursesScreen()),
-                              ),
+                              onTap: () => AppShell.goToTab(2),
                             ),
                             _QuickActionCard(
                               icon: Icons.inventory_2_rounded,
