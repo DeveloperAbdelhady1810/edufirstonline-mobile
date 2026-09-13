@@ -49,13 +49,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // No Scaffold here - lives inside AppShell's IndexedStack, which
-    // already provides the one real Scaffold + persistent bottom nav.
-    return SafeArea(
-      child: Column(
-        children: [
-          DecorativeHeader(
-            padding: const EdgeInsets.fromLTRB(
+    // Material (not Scaffold) here - lives inside AppShell's IndexedStack,
+    // which already provides the one real Scaffold + persistent bottom
+    // nav; Material alone still gives InkWell/TextButton below a valid
+    // ancestor without reintroducing a second keyboard-resize handler.
+    return Material(
+      color: AppColors.background,
+      child: SafeArea(
+        child: Column(
+          children: [
+            DecorativeHeader(
+              padding: const EdgeInsets.fromLTRB(
               AppSpacing.pageHorizontal,
                 AppSpacing.lg,
                 AppSpacing.pageHorizontal,
@@ -70,7 +74,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         Text('الإشعارات', style: AppTypography.headline.copyWith(color: Colors.white)),
                         const SizedBox(height: 2),
                         Text(
-                          'كل جديد يخص دوراتك هنا 🔔',
+                          'كل جديد يخص حصصك هنا 🔔',
                           style: AppTypography.bodySmall.copyWith(color: Colors.white.withValues(alpha: 0.85)),
                         ),
                       ],
@@ -112,7 +116,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         children: const [
                           EmptyState(
                             title: 'لا توجد إشعارات بعد',
-                            message: 'ستظهر هنا كل التحديثات المتعلقة بدوراتك',
+                            message: 'ستظهر هنا كل التحديثات المتعلقة بحصصك',
                             icon: Icons.notifications_none_rounded,
                           ),
                         ],
@@ -128,7 +132,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 ),
               ),
             ),
-        ],
+          ],
+        ),
       ),
     );
   }

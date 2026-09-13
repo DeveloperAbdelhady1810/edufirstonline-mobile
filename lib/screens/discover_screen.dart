@@ -49,16 +49,23 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   Widget build(BuildContext context) {
     final allGrades = EducationData.stages.expand((s) => s.grades).toList();
 
-    // No Scaffold here - lives inside AppShell's IndexedStack, which
-    // already provides the one real Scaffold + persistent bottom nav.
-    return SafeArea(
-      child: Column(
-        children: [
+    // Material (not Scaffold) here - this screen lives inside AppShell's
+    // IndexedStack, which already provides the one real Scaffold +
+    // persistent bottom nav, so a second Scaffold would reintroduce the
+    // double keyboard-resize bug that caused the bottom nav to
+    // intermittently disappear. But TextField/InkWell below still need a
+    // Material ancestor somewhere, so a plain Material (no Scaffold
+    // behavior) provides that instead.
+    return Material(
+      color: AppColors.background,
+      child: SafeArea(
+        child: Column(
+          children: [
           DecorativeHeader(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('اكتشف الدورات', style: AppTypography.headline.copyWith(color: Colors.white)),
+                  Text('اكتشف الحصص', style: AppTypography.headline.copyWith(color: Colors.white)),
                   const SizedBox(height: 2),
                   Text(
                     'ابحث عن دورتك القادمة 📚',
@@ -75,7 +82,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                       onSubmitted: (_) => _reload(),
                       style: AppTypography.body,
                       decoration: InputDecoration(
-                        hintText: 'ابحث عن دورة أو موضوع...',
+                        hintText: 'ابحث عن حصة أو موضوع...',
                         prefixIcon: const Icon(Icons.search_rounded, color: AppColors.primary),
                         suffixIcon: IconButton(
                           icon: const Icon(Icons.arrow_forward_rounded),
@@ -128,7 +135,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                   }
                   if (snapshot.hasError) {
                     return EmptyState(
-                      title: 'تعذر تحميل الدورات',
+                      title: 'تعذر تحميل الحصص',
                       message: 'تحقق من اتصالك بالإنترنت',
                       icon: Icons.wifi_off_rounded,
                       actionLabel: 'إعادة المحاولة',
@@ -138,7 +145,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                   final courses = snapshot.data ?? [];
                   if (courses.isEmpty) {
                     return const EmptyState(
-                      title: 'لا توجد دورات مطابقة',
+                      title: 'لا توجد حصص مطابقة',
                       message: 'جرّب كلمة بحث أو مرحلة دراسية مختلفة',
                       icon: Icons.search_off_rounded,
                     );
@@ -152,7 +159,8 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                 },
               ),
             ),
-        ],
+          ],
+        ),
       ),
     );
   }

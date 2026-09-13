@@ -186,7 +186,7 @@ class _CoursePlayerScreenState extends State<CoursePlayerScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('اختبارات الدورة', style: AppTypography.title),
+                                  Text('اختبارات الحصة', style: AppTypography.title),
                                   Text('اختبر نفسك بعد كل جزء', style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted)),
                                 ],
                               ),
@@ -196,7 +196,7 @@ class _CoursePlayerScreenState extends State<CoursePlayerScreen> {
                         ),
                       ),
                       const SizedBox(height: AppSpacing.lg),
-                      Text('محتوى الدورة', style: AppTypography.title),
+                      Text('محتوى الحصة', style: AppTypography.title),
                       const SizedBox(height: AppSpacing.sm),
                       for (var i = 0; i < sections.length; i++)
                         _SectionBlock(

@@ -108,7 +108,7 @@ class _PackageDetailScreenState extends State<PackageDetailScreen> {
                               Text(package.description, style: AppTypography.body.copyWith(color: AppColors.textMuted)),
                               const SizedBox(height: AppSpacing.xl),
                             ],
-                            Text('الدورات المتضمنة (${package.courses?.length ?? 0})', style: AppTypography.title),
+                            Text('الحصص المتضمنة (${package.courses?.length ?? 0})', style: AppTypography.title),
                             const SizedBox(height: AppSpacing.sm),
                             for (final course in package.courses ?? [])
                               Padding(

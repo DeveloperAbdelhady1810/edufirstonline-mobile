@@ -65,7 +65,7 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
         await ContentService.instance.enrollFree(course.id);
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تم الاشتراك في الدورة بنجاح!')),
+          const SnackBar(content: Text('تم الاشتراك في الحصة بنجاح!')),
         );
         _refresh();
       } on ApiException catch (e) {
@@ -180,12 +180,12 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             if (course.description.isNotEmpty) ...[
-                              Text('عن الدورة', style: AppTypography.title),
+                              Text('عن الحصة', style: AppTypography.title),
                               const SizedBox(height: AppSpacing.xs),
                               Text(course.description, style: AppTypography.body.copyWith(color: AppColors.textMuted)),
                               const SizedBox(height: AppSpacing.xl),
                             ],
-                            Text('محتوى الدورة', style: AppTypography.title),
+                            Text('محتوى الحصة', style: AppTypography.title),
                             const SizedBox(height: AppSpacing.sm),
                             for (var i = 0; i < course.sections.length; i++)
                               _SectionCard(section: course.sections[i], delay: i * 60, unlocked: isEnrolled),
@@ -374,7 +374,7 @@ class _ErrorView extends StatelessWidget {
           children: [
             const Icon(Icons.wifi_off_rounded, size: 48, color: AppColors.textMuted),
             const SizedBox(height: AppSpacing.md),
-            Text('تعذر تحميل تفاصيل الدورة', style: AppTypography.title),
+            Text('تعذر تحميل تفاصيل الحصة', style: AppTypography.title),
             const SizedBox(height: AppSpacing.lg),
             AppButton(label: 'إعادة المحاولة', onPressed: onRetry, fullWidth: false),
           ],

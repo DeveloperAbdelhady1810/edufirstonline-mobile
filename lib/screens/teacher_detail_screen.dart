@@ -98,7 +98,7 @@ class _TeacherDetailScreenState extends State<TeacherDetailScreen> {
                         ),
                         const SizedBox(height: AppSpacing.lg),
                       ],
-                      Text('دورات ${teacher.name}', style: AppTypography.title),
+                      Text('حصص ${teacher.name}', style: AppTypography.title),
                       const SizedBox(height: AppSpacing.sm),
                       for (final course in teacher.courses)
                         Padding(

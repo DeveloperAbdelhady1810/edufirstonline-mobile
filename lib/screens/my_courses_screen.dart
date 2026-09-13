@@ -39,13 +39,17 @@ class _MyCoursesScreenState extends State<MyCoursesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // No Scaffold here - lives inside AppShell's IndexedStack, which
-    // already provides the one real Scaffold + persistent bottom nav.
-    return SafeArea(
-      child: Column(
-        children: [
-          DecorativeHeader(
-            padding: const EdgeInsets.fromLTRB(
+    // Material (not Scaffold) here - lives inside AppShell's IndexedStack,
+    // which already provides the one real Scaffold + persistent bottom
+    // nav; Material alone still gives InkWell/TextField below a valid
+    // ancestor without reintroducing a second keyboard-resize handler.
+    return Material(
+      color: AppColors.background,
+      child: SafeArea(
+        child: Column(
+          children: [
+            DecorativeHeader(
+              padding: const EdgeInsets.fromLTRB(
                 AppSpacing.pageHorizontal,
                 AppSpacing.lg,
                 AppSpacing.pageHorizontal,
@@ -85,7 +89,7 @@ class _MyCoursesScreenState extends State<MyCoursesScreen> {
                       return ListView(
                         children: [
                           EmptyState(
-                            title: 'تعذر تحميل دوراتك',
+                            title: 'تعذر تحميل حصصك',
                             icon: Icons.wifi_off_rounded,
                             actionLabel: 'إعادة المحاولة',
                             onAction: _refresh,
@@ -98,10 +102,10 @@ class _MyCoursesScreenState extends State<MyCoursesScreen> {
                       return ListView(
                         children: [
                           EmptyState(
-                            title: 'لا توجد دورات مشترك بها بعد',
-                            message: 'تصفح الدورات المتاحة وابدأ التعلم',
+                            title: 'لا توجد حصص مشترك بها بعد',
+                            message: 'تصفح الحصص المتاحة وابدأ التعلم',
                             icon: Icons.video_library_outlined,
-                            actionLabel: 'تصفح الدورات',
+                            actionLabel: 'تصفح الحصص',
                             onAction: () => Navigator.of(context).push(
                               MaterialPageRoute(builder: (_) => const DiscoverScreen()),
                             ),
@@ -119,7 +123,8 @@ class _MyCoursesScreenState extends State<MyCoursesScreen> {
                 ),
               ),
             ),
-        ],
+          ],
+        ),
       ),
     );
   }

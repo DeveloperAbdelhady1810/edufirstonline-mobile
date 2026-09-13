@@ -57,7 +57,7 @@ class _PackageListScreenState extends State<PackageListScreen> {
                       children: [
                         Text('الباقات التعليمية', style: AppTypography.title.copyWith(color: Colors.white)),
                         Text(
-                          'اشترك في مجموعة دورات وفر أكثر 💰',
+                          'اشترك في مجموعة حصص وفر أكثر 💰',
                           style: AppTypography.bodySmall.copyWith(color: Colors.white.withValues(alpha: 0.85)),
                         ),
                       ],
@@ -135,7 +135,7 @@ class _PackageTile extends StatelessWidget {
                 const SizedBox(height: 2),
                 Row(
                   children: [
-                    AppBadge(label: '${package.courseCount} دورة', variant: AppBadgeVariant.info),
+                    AppBadge(label: '${package.courseCount} حصة', variant: AppBadgeVariant.info),
                     const SizedBox(width: 6),
                     if (package.grade.isNotEmpty) AppBadge(label: package.grade, variant: AppBadgeVariant.neutral),
                   ],

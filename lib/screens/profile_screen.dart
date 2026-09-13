@@ -39,12 +39,16 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = context.watch<AuthService>().currentUser;
 
-    // No Scaffold here - lives inside AppShell's IndexedStack, which
-    // already provides the one real Scaffold + persistent bottom nav.
-    return SafeArea(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
+    // Material (not Scaffold) here - lives inside AppShell's IndexedStack,
+    // which already provides the one real Scaffold + persistent bottom
+    // nav; Material alone still gives the InkWell menu tiles below a valid
+    // ancestor without reintroducing a second keyboard-resize handler.
+    return Material(
+      color: AppColors.background,
+      child: SafeArea(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
           DecorativeHeader(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -114,7 +118,8 @@ class ProfileScreen extends StatelessWidget {
                 ],
               ),
             ),
-        ],
+          ],
+        ),
       ),
     );
   }

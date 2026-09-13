@@ -47,15 +47,19 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   Widget build(BuildContext context) {
     final userName = context.watch<AuthService>().currentUser?.name.split(' ').first ?? '';
 
-    // No Scaffold here on purpose - this screen only ever lives inside
-    // AppShell's IndexedStack, which already has the one real Scaffold
-    // (with the persistent bottom nav). A second, nested Scaffold here
-    // used to double up keyboard-inset handling and could make the outer
-    // bottom nav bar intermittently disappear/misbehave.
-    return SafeArea(
-      child: RefreshIndicator(
-        color: AppColors.primary,
-        onRefresh: _refresh,
+    // Material (not Scaffold) here on purpose - this screen only ever
+    // lives inside AppShell's IndexedStack, which already has the one real
+    // Scaffold (with the persistent bottom nav). A second, nested Scaffold
+    // here used to double up keyboard-inset handling and could make the
+    // outer bottom nav bar intermittently disappear/misbehave. Material
+    // alone (no Scaffold behavior) still gives any InkWell/TextField
+    // further down a valid ancestor.
+    return Material(
+      color: AppColors.background,
+      child: SafeArea(
+        child: RefreshIndicator(
+          color: AppColors.primary,
+          onRefresh: _refresh,
           child: FutureBuilder<DashboardData>(
             future: _future,
             builder: (context, snapshot) {
@@ -133,7 +137,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                             _QuickActionCard(
                               icon: Icons.explore_rounded,
                               iconBg: AppColors.primary,
-                              label: 'تصفح الدورات',
+                              label: 'تصفح الحصص',
                               onTap: () => Navigator.of(context).push(
                                 MaterialPageRoute(builder: (_) => const DiscoverScreen()),
                               ),
@@ -172,6 +176,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             },
           ),
         ),
+      ),
     );
   }
 }
@@ -257,7 +262,7 @@ class _NoActivityYetCard extends StatelessWidget {
               children: [
                 Text('لم تبدأ أي درس بعد', style: AppTypography.title),
                 Text(
-                  'تصفح الدورات وابدأ رحلتك التعليمية الآن',
+                  'تصفح الحصص وابدأ رحلتك التعليمية الآن',
                   style: AppTypography.bodySmall.copyWith(color: AppColors.textMuted),
                 ),
               ],

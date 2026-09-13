@@ -53,7 +53,7 @@ class _QuizListScreenState extends State<QuizListScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('اختبارات الدورة', style: AppTypography.title.copyWith(color: Colors.white)),
+                        Text('اختبارات الحصة', style: AppTypography.title.copyWith(color: Colors.white)),
                         Text(
                           widget.courseTitle,
                           style: AppTypography.bodySmall.copyWith(color: Colors.white.withValues(alpha: 0.85)),
