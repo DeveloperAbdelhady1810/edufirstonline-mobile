@@ -47,7 +47,9 @@ class _CoursePlayerScreenState extends State<CoursePlayerScreen> {
     return (results[0] as CourseDetail, results[1] as List<CourseSection>);
   }
 
-  void _refresh() => setState(() => _future = _load());
+  void _refresh() => setState(() {
+        _future = _load();
+      });
 
   Future<void> _openLecture(LectureSummary lecture) async {
     try {

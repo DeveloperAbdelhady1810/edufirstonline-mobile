@@ -33,7 +33,9 @@ class _PackageDetailScreenState extends State<PackageDetailScreen> {
     _future = DirectoryService.instance.packageDetail(widget.packageId);
   }
 
-  void _refresh() => setState(() => _future = DirectoryService.instance.packageDetail(widget.packageId));
+  void _refresh() => setState(() {
+        _future = DirectoryService.instance.packageDetail(widget.packageId);
+      });
 
   Future<void> _handlePurchase() async {
     setState(() => _isPurchasing = true);

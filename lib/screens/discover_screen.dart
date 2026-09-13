@@ -240,7 +240,10 @@ class _CourseTile extends StatelessWidget {
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
-          Text('${course.price} ج.م', style: AppTypography.body.copyWith(fontWeight: FontWeight.w800, color: AppColors.primaryDark)),
+          if (course.isFree)
+            Text('مجانًا', style: AppTypography.body.copyWith(fontWeight: FontWeight.w800, color: AppColors.primary))
+          else
+            Text('${course.price} ج.م', style: AppTypography.body.copyWith(fontWeight: FontWeight.w800, color: AppColors.primaryDark)),
         ],
       ),
     );

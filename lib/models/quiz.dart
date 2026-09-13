@@ -1,3 +1,5 @@
+import '../utils/json_num.dart';
+
 /// One quiz in a course's quiz list (`GET /courses/{course}/quizzes`).
 class QuizSummary {
   QuizSummary({
@@ -22,9 +24,9 @@ class QuizSummary {
         id: json['id'] as int,
         title: json['title'] as String? ?? '',
         description: json['description'] as String?,
-        passScore: (json['pass_score'] as num?)?.toInt() ?? 50,
-        durationMinutes: (json['duration_minutes'] as num?)?.toInt(),
-        questionCount: (json['question_count'] as num?)?.toInt() ?? 0,
+        passScore: asInt(json['pass_score']) ?? 50,
+        durationMinutes: asInt(json['duration_minutes']),
+        questionCount: asInt(json['question_count']) ?? 0,
         submitted: json['submitted'] == true,
       );
 }
@@ -55,8 +57,8 @@ class QuizQuestion {
         questionText: json['question_text'] as String? ?? '',
         image: json['image'] as String?,
         options: _parseOptions(json['options']),
-        points: (json['points'] as num?)?.toInt() ?? 1,
-        order: (json['order'] as num?)?.toInt() ?? 0,
+        points: asInt(json['points']) ?? 1,
+        order: asInt(json['order']) ?? 0,
       );
 
   static List<MapEntry<String, String>> _parseOptions(dynamic raw) {
@@ -95,8 +97,8 @@ class QuizDetail {
         id: json['id'] as int,
         title: json['title'] as String? ?? '',
         description: json['description'] as String?,
-        passScore: (json['pass_score'] as num?)?.toInt() ?? 50,
-        durationMinutes: (json['duration_minutes'] as num?)?.toInt(),
+        passScore: asInt(json['pass_score']) ?? 50,
+        durationMinutes: asInt(json['duration_minutes']),
         questions: (json['questions'] as List<dynamic>? ?? [])
             .map((e) => QuizQuestion.fromJson(e as Map<String, dynamic>))
             .toList(),
@@ -126,7 +128,7 @@ class QuizAnswerResult {
         yourAnswer: json['your_answer'] as String?,
         correctAnswer: json['correct_answer'] as String?,
         isCorrect: json['is_correct'] == true,
-        pointsEarned: (json['points_earned'] as num?)?.toInt() ?? 0,
+        pointsEarned: asInt(json['points_earned']) ?? 0,
       );
 }
 
@@ -154,11 +156,11 @@ class QuizResult {
   factory QuizResult.fromJson(Map<String, dynamic> json) => QuizResult(
         quizId: json['quiz_id'] as int,
         title: json['title'] as String? ?? '',
-        score: (json['score'] as num?)?.toInt() ?? 0,
-        totalScore: (json['total_score'] as num?)?.toInt() ?? 0,
-        percentage: (json['percentage'] as num?) ?? 0,
+        score: asInt(json['score']) ?? 0,
+        totalScore: asInt(json['total_score']) ?? 0,
+        percentage: asNum(json['percentage']) ?? 0,
         passed: json['passed'] == true,
-        passScore: (json['pass_score'] as num?)?.toInt() ?? 50,
+        passScore: asInt(json['pass_score']) ?? 50,
         answers: (json['answers'] as List<dynamic>? ?? [])
             .map((e) => QuizAnswerResult.fromJson(e as Map<String, dynamic>))
             .toList(),

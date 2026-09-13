@@ -32,7 +32,9 @@ class _QuizListScreenState extends State<QuizListScreen> {
     _future = QuizService.instance.courseQuizzes(widget.courseId);
   }
 
-  void _refresh() => setState(() => _future = QuizService.instance.courseQuizzes(widget.courseId));
+  void _refresh() => setState(() {
+        _future = QuizService.instance.courseQuizzes(widget.courseId);
+      });
 
   @override
   Widget build(BuildContext context) {

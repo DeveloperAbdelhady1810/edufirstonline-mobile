@@ -31,7 +31,9 @@ class _MyCoursesScreenState extends State<MyCoursesScreen> {
 
   Future<void> _refresh() async {
     final next = ContentService.instance.myCourses();
-    setState(() => _future = next);
+    setState(() {
+      _future = next;
+    });
     await next;
   }
 

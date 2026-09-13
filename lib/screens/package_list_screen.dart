@@ -28,7 +28,9 @@ class _PackageListScreenState extends State<PackageListScreen> {
     _future = DirectoryService.instance.packages();
   }
 
-  void _refresh() => setState(() => _future = DirectoryService.instance.packages());
+  void _refresh() => setState(() {
+        _future = DirectoryService.instance.packages();
+      });
 
   @override
   Widget build(BuildContext context) {

@@ -30,7 +30,9 @@ class _TeacherListScreenState extends State<TeacherListScreen> {
     _future = DirectoryService.instance.teachers();
   }
 
-  void _search() => setState(() => _future = DirectoryService.instance.teachers(search: _searchController.text.trim()));
+  void _search() => setState(() {
+        _future = DirectoryService.instance.teachers(search: _searchController.text.trim());
+      });
 
   @override
   void dispose() {

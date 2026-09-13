@@ -1,3 +1,4 @@
+import '../utils/json_num.dart';
 import 'course.dart';
 
 /// A course bundle. Two endpoints return slightly different shapes (list
@@ -41,7 +42,7 @@ class CoursePackage {
       stage: json['stage'] as String? ?? '',
       grade: json['grade'] as String? ?? '',
       teacherName: teacherName,
-      coursesCount: (json['courses_count'] as num?)?.toInt(),
+      coursesCount: asInt(json['courses_count']),
       courses: json['courses'] is List
           ? (json['courses'] as List)
               .map((e) => CourseSummary.fromJson(e as Map<String, dynamic>))

@@ -51,9 +51,32 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
     return (detail, isEnrolled);
   }
 
-  void _refresh() => setState(() => _future = _load());
+  void _refresh() => setState(() {
+        _future = _load();
+      });
 
   Future<void> _handlePurchase(CourseDetail course) async {
+    // A free course never goes through Paymob - the backend's own web
+    // purchase route explicitly rejects that combination, so this mirrors
+    // the website's dedicated free-enrollment endpoint instead.
+    if (course.isFree) {
+      setState(() => _isPurchasing = true);
+      try {
+        await ContentService.instance.enrollFree(course.id);
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تم الاشتراك في الدورة بنجاح!')),
+        );
+        _refresh();
+      } on ApiException catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+      } finally {
+        if (mounted) setState(() => _isPurchasing = false);
+      }
+      return;
+    }
+
     setState(() => _isPurchasing = true);
     try {
       final url = await WebviewTicketService.instance.payCourseUrl(course.id);
@@ -103,7 +126,10 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                                   icon: const Icon(Icons.arrow_forward, color: Colors.white),
                                 ),
                                 const Spacer(),
-                                if (isEnrolled) const AppBadge(label: 'مشترك', variant: AppBadgeVariant.success, icon: Icons.check_circle),
+                                if (isEnrolled)
+                                  const AppBadge(label: 'مشترك', variant: AppBadgeVariant.success, icon: Icons.check_circle)
+                                else if (course.isFree)
+                                  const AppBadge(label: 'مجانًا', variant: AppBadgeVariant.gold, icon: Icons.celebration_rounded),
                               ],
                             ),
                             Text(course.title, style: AppTypography.headline.copyWith(color: Colors.white)),
@@ -258,12 +284,22 @@ class _BuyBar extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('السعر', style: AppTypography.caption.copyWith(color: AppColors.textMuted)),
-                  Text('${course.price} ج.م', style: AppTypography.headline.copyWith(color: AppColors.primaryDark)),
+                  Text(
+                    course.isFree ? 'مجانًا' : '${course.price} ج.م',
+                    style: AppTypography.headline.copyWith(
+                      color: course.isFree ? AppColors.primary : AppColors.primaryDark,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(width: AppSpacing.lg),
               Expanded(
-                child: AppButton(label: 'اشترك الآن', icon: Icons.shopping_cart_checkout_rounded, isLoading: isLoading, onPressed: onBuy),
+                child: AppButton(
+                  label: course.isFree ? 'اشترك مجانًا' : 'اشترك الآن',
+                  icon: course.isFree ? Icons.celebration_rounded : Icons.shopping_cart_checkout_rounded,
+                  isLoading: isLoading,
+                  onPressed: onBuy,
+                ),
               ),
             ],
           ),

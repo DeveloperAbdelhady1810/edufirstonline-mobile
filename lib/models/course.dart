@@ -1,3 +1,5 @@
+import '../utils/json_num.dart';
+
 /// A published course as returned by the public `GET /courses` list and
 /// (in a lighter shape) inside package details. Field names match the raw
 /// column aliases the backend selects - confirmed live against production.
@@ -12,6 +14,7 @@ class CourseSummary {
     this.views = 0,
     this.teacherName = '',
     this.teacherAvatar,
+    this.isFree = false,
   });
 
   final int id;
@@ -23,6 +26,7 @@ class CourseSummary {
   final int views;
   final String teacherName;
   final String? teacherAvatar;
+  final bool isFree;
 
   factory CourseSummary.fromJson(Map<String, dynamic> json) => CourseSummary(
         id: json['id'] as int,
@@ -31,9 +35,10 @@ class CourseSummary {
         price: '${json['price'] ?? '0'}',
         grade: json['grade'] as String? ?? '',
         subject: json['subject'] as String? ?? '',
-        views: (json['views'] as num?)?.toInt() ?? 0,
+        views: asInt(json['views']) ?? 0,
         teacherName: json['teacher_name'] as String? ?? '',
         teacherAvatar: json['teacher_avatar'] as String?,
+        isFree: json['is_free'] == true || json['is_free'] == 1,
       );
 }
 
@@ -70,11 +75,11 @@ class LectureSummary {
         title: json['title'] as String? ?? '',
         type: json['type'] as String? ?? 'video',
         isFree: json['is_free'] == true || json['is_free'] == 1,
-        videoDuration: (json['video_duration'] as num?)?.toInt(),
-        order: (json['order'] as num?)?.toInt() ?? 0,
+        videoDuration: asInt(json['video_duration']),
+        order: asInt(json['order']) ?? 0,
         completed: json['completed'] == true || json['completed'] == 1,
-        lastPosition: (json['last_position'] as num?)?.toInt(),
-        progressPercentage: (json['progress_percentage'] as num?)?.toInt(),
+        lastPosition: asInt(json['last_position']),
+        progressPercentage: asInt(json['progress_percentage']),
       );
 }
 
@@ -94,7 +99,7 @@ class CourseSection {
   factory CourseSection.fromJson(Map<String, dynamic> json) => CourseSection(
         id: json['id'] as int,
         title: json['title'] as String? ?? '',
-        order: (json['order'] as num?)?.toInt() ?? 0,
+        order: asInt(json['order']) ?? 0,
         lectures: (json['lectures'] as List<dynamic>? ?? [])
             .map((e) => LectureSummary.fromJson(e as Map<String, dynamic>))
             .toList(),
@@ -116,6 +121,7 @@ class CourseDetail {
     this.teacherAvatar,
     this.teacherBio,
     this.sections = const [],
+    this.isFree = false,
   });
 
   final int id;
@@ -128,6 +134,7 @@ class CourseDetail {
   final String? teacherAvatar;
   final String? teacherBio;
   final List<CourseSection> sections;
+  final bool isFree;
 
   factory CourseDetail.fromJson(Map<String, dynamic> json) => CourseDetail(
         id: json['id'] as int,
@@ -142,6 +149,7 @@ class CourseDetail {
         sections: (json['sections'] as List<dynamic>? ?? [])
             .map((e) => CourseSection.fromJson(e as Map<String, dynamic>))
             .toList(),
+        isFree: json['is_free'] == true || json['is_free'] == 1,
       );
 
   int get lectureCount => sections.fold(0, (sum, s) => sum + s.lectures.length);
@@ -172,6 +180,10 @@ class MyCourse {
         grade: json['grade'] as String? ?? '',
         subject: json['subject'] as String? ?? '',
         teacherName: json['teacher_name'] as String? ?? '',
-        progress: (json['progress'] as num?)?.toInt() ?? 0,
+        // `progress` is a raw SQL `coalesce(round(avg(...)), 0)` expression -
+        // MySQL's driver returns that as a numeric STRING, not a JSON
+        // number (confirmed - this crashed with a cast error in production
+        // before `asInt` was added), unlike the plain integer columns above.
+        progress: asInt(json['progress']) ?? 0,
       );
 }

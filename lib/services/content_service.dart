@@ -35,6 +35,14 @@ class ContentService {
     return data.map((e) => CourseSection.fromJson(e as Map<String, dynamic>)).toList();
   }
 
+  /// Mirrors the web app's dedicated free-enrollment route - a free course
+  /// is never sent through the Paymob/webview-ticket purchase flow (the web
+  /// backend's own `purchase()` action explicitly rejects that for a free
+  /// course), so this is a separate, direct call.
+  Future<void> enrollFree(int courseId) {
+    return ApiClient.instance.post('/courses/$courseId/enroll-free');
+  }
+
   Future<void> markLectureComplete(int lectureId) {
     return ApiClient.instance.post('/lectures/$lectureId/complete');
   }

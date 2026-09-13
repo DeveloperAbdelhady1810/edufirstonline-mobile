@@ -37,7 +37,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
   Future<void> _refresh() async {
     final next = ContentService.instance.dashboard();
-    setState(() => _future = next);
+    setState(() {
+      _future = next;
+    });
     await next;
   }
 

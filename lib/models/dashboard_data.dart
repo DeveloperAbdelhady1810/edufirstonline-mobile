@@ -1,3 +1,5 @@
+import '../utils/json_num.dart';
+
 /// "Continue watching" card on the home dashboard - the most recently
 /// touched, not-yet-complete lecture. Null on the API when a student hasn't
 /// started anything yet (handled by simply hiding the section, not showing
@@ -38,9 +40,9 @@ class ContinueWatching {
         grade: json['grade'] as String? ?? '',
         teacherName: json['teacher_name'] as String?,
         thumbnail: json['thumbnail'] as String?,
-        progressPercentage: (json['progress_percentage'] as num?)?.toInt() ?? 0,
-        sectionPosition: (json['section_position'] as num?)?.toInt(),
-        totalSections: (json['total_sections'] as num?)?.toInt(),
+        progressPercentage: asInt(json['progress_percentage']) ?? 0,
+        sectionPosition: asInt(json['section_position']),
+        totalSections: asInt(json['total_sections']),
       );
 }
 
@@ -61,7 +63,7 @@ class UpNextLecture {
         courseId: json['course_id'] as int,
         lectureId: json['lecture_id'] as int,
         lectureTitle: json['lecture_title'] as String? ?? '',
-        videoDuration: (json['video_duration'] as num?)?.toInt(),
+        videoDuration: asInt(json['video_duration']),
       );
 }
 
@@ -81,9 +83,9 @@ class DashboardData {
   final UpNextLecture? upNext;
 
   factory DashboardData.fromJson(Map<String, dynamic> json) => DashboardData(
-        enrolled: (json['enrolled'] as num?)?.toInt() ?? 0,
-        completed: (json['completed'] as num?)?.toInt() ?? 0,
-        streak: (json['streak'] as num?)?.toInt() ?? 0,
+        enrolled: asInt(json['enrolled']) ?? 0,
+        completed: asInt(json['completed']) ?? 0,
+        streak: asInt(json['streak']) ?? 0,
         continueWatching: json['continueWatching'] is Map<String, dynamic>
             ? ContinueWatching.fromJson(json['continueWatching'] as Map<String, dynamic>)
             : null,
