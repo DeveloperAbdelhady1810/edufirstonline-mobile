@@ -68,6 +68,23 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
 
+  # Generates the real app icon (assets/icon/app_icon.png - "The First"
+  # center's actual logo) for both Android and iOS. Dev-only: it's a build
+  # tool, not something the running app depends on.
+  flutter_launcher_icons: ^0.14.3
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/app_icon.png"
+  # The source logo already has a solid black background baked in (not
+  # transparent), so the Android adaptive-icon background is set to match
+  # rather than left default - otherwise Android would letterbox it oddly
+  # on launchers that apply their own mask/background.
+  adaptive_icon_background: "#000000"
+  adaptive_icon_foreground: "assets/icon/app_icon.png"
+  remove_alpha_ios: true
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
