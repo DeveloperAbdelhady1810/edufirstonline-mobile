@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 
 import '../data/education_data.dart';
 import '../models/teacher.dart';
+import '../services/api_client.dart';
 import '../services/directory_service.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_typography.dart';
 import '../widgets/app_badge.dart';
+import '../widgets/app_button.dart';
 import '../widgets/app_card.dart';
 import '../widgets/decorative_header.dart';
 import '../widgets/loading_skeleton.dart';
@@ -24,10 +26,33 @@ class TeacherDetailScreen extends StatefulWidget {
 class _TeacherDetailScreenState extends State<TeacherDetailScreen> {
   late Future<TeacherProfile> _future;
 
+  // Tracked separately from the FutureBuilder's snapshot so following/
+  // unfollowing can update the button instantly without re-fetching the
+  // whole teacher profile.
+  bool? _isFollowing;
+  bool _isTogglingFollow = false;
+
   @override
   void initState() {
     super.initState();
     _future = DirectoryService.instance.teacherDetail(widget.teacherId);
+  }
+
+  Future<void> _toggleFollow() async {
+    if (_isFollowing == null) return;
+    setState(() => _isTogglingFollow = true);
+    try {
+      final nowFollowing = _isFollowing!
+          ? await DirectoryService.instance.unfollow(widget.teacherId)
+          : await DirectoryService.instance.follow(widget.teacherId);
+      if (!mounted) return;
+      setState(() => _isFollowing = nowFollowing);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+    } finally {
+      if (mounted) setState(() => _isTogglingFollow = false);
+    }
   }
 
   @override
@@ -45,6 +70,7 @@ class _TeacherDetailScreenState extends State<TeacherDetailScreen> {
             }
 
             final teacher = snapshot.data!;
+            _isFollowing ??= teacher.isFollowing;
 
             return ListView(
               padding: EdgeInsets.zero,
@@ -72,6 +98,15 @@ class _TeacherDetailScreenState extends State<TeacherDetailScreen> {
                         const SizedBox(height: 4),
                         const AppBadge(label: 'معلم مميز', variant: AppBadgeVariant.gold, icon: Icons.star_rounded),
                       ],
+                      const SizedBox(height: AppSpacing.md),
+                      AppButton(
+                        label: _isFollowing! ? 'إلغاء المتابعة' : 'متابعة',
+                        icon: _isFollowing! ? Icons.check_rounded : Icons.add_rounded,
+                        variant: _isFollowing! ? AppButtonVariant.secondary : AppButtonVariant.primary,
+                        isLoading: _isTogglingFollow,
+                        fullWidth: false,
+                        onPressed: _toggleFollow,
+                      ),
                     ],
                   ),
                 ),

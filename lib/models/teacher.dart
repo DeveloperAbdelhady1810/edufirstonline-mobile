@@ -10,6 +10,7 @@ class TeacherProfile {
     this.subjects = const [],
     this.educationStages = const [],
     this.courses = const [],
+    this.isFollowing = false,
   });
 
   final int id;
@@ -20,6 +21,7 @@ class TeacherProfile {
   final List<String> subjects;
   final List<String> educationStages;
   final List<CourseSummary> courses;
+  final bool isFollowing;
 
   factory TeacherProfile.fromJson(Map<String, dynamic> json) => TeacherProfile(
         id: json['id'] as int,
@@ -34,6 +36,7 @@ class TeacherProfile {
                 .map((e) => CourseSummary.fromJson(e as Map<String, dynamic>))
                 .toList()
             : const [],
+        isFollowing: json['is_following'] == true,
       );
 
   static List<String> _stringList(dynamic value) {

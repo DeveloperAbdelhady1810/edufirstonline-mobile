@@ -53,6 +53,12 @@ class ApiClient {
     return _handle(res);
   }
 
+  Future<dynamic> delete(String path) async {
+    final uri = Uri.parse('${ApiConfig.baseUrl}$path');
+    final res = await http.delete(uri, headers: _headers).timeout(const Duration(seconds: 20));
+    return _handle(res);
+  }
+
   dynamic _handle(http.Response res) {
     if (res.statusCode >= 200 && res.statusCode < 300) {
       if (res.body.isEmpty) return null;

@@ -149,6 +149,9 @@ class _NotificationTile extends StatelessWidget {
         'quiz_result' || 'quiz_fully_graded' => Icons.quiz_rounded,
         'course_enrolled' || 'payment_received' => Icons.shopping_bag_rounded,
         'teacher_approved' => Icons.verified_rounded,
+        'new_lecture' => Icons.play_circle_rounded,
+        'new_course_from_followed_teacher' => Icons.person_add_alt_1_rounded,
+        'admin_broadcast' => Icons.campaign_rounded,
         _ => Icons.notifications_rounded,
       };
 

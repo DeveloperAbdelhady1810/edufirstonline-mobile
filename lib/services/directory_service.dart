@@ -37,4 +37,14 @@ class DirectoryService {
     final data = await ApiClient.instance.get('/teachers/$teacherId') as Map<String, dynamic>;
     return TeacherProfile.fromJson(data);
   }
+
+  Future<bool> follow(int teacherId) async {
+    final data = await ApiClient.instance.post('/teachers/$teacherId/follow') as Map<String, dynamic>;
+    return data['following'] as bool;
+  }
+
+  Future<bool> unfollow(int teacherId) async {
+    final data = await ApiClient.instance.delete('/teachers/$teacherId/follow') as Map<String, dynamic>;
+    return data['following'] as bool;
+  }
 }
