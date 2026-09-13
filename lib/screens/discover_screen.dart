@@ -49,11 +49,12 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   Widget build(BuildContext context) {
     final allGrades = EducationData.stages.expand((s) => s.grades).toList();
 
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            DecorativeHeader(
+    // No Scaffold here - lives inside AppShell's IndexedStack, which
+    // already provides the one real Scaffold + persistent bottom nav.
+    return SafeArea(
+      child: Column(
+        children: [
+          DecorativeHeader(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -151,8 +152,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                 },
               ),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }

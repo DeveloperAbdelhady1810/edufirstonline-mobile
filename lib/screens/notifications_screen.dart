@@ -49,13 +49,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            DecorativeHeader(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.pageHorizontal,
+    // No Scaffold here - lives inside AppShell's IndexedStack, which
+    // already provides the one real Scaffold + persistent bottom nav.
+    return SafeArea(
+      child: Column(
+        children: [
+          DecorativeHeader(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.pageHorizontal,
                 AppSpacing.lg,
                 AppSpacing.pageHorizontal,
                 AppSpacing.xl,
@@ -127,8 +128,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 ),
               ),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }

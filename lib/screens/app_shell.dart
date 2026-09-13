@@ -25,7 +25,7 @@ class _AppShellState extends State<AppShell> {
   static const _tabs = [
     (icon: Icons.home_rounded, label: 'الرئيسية'),
     (icon: Icons.explore_rounded, label: 'اكتشف'),
-    (icon: Icons.video_library_rounded, label: 'دوراتي'),
+    (icon: Icons.video_library_rounded, label: 'حصصي'),
     (icon: Icons.notifications_rounded, label: 'الإشعارات'),
     (icon: Icons.person_rounded, label: 'حسابي'),
   ];

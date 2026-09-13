@@ -39,12 +39,13 @@ class _MyCoursesScreenState extends State<MyCoursesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            DecorativeHeader(
-              padding: const EdgeInsets.fromLTRB(
+    // No Scaffold here - lives inside AppShell's IndexedStack, which
+    // already provides the one real Scaffold + persistent bottom nav.
+    return SafeArea(
+      child: Column(
+        children: [
+          DecorativeHeader(
+            padding: const EdgeInsets.fromLTRB(
                 AppSpacing.pageHorizontal,
                 AppSpacing.lg,
                 AppSpacing.pageHorizontal,
@@ -57,7 +58,7 @@ class _MyCoursesScreenState extends State<MyCoursesScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('دوراتي', style: AppTypography.headline.copyWith(color: Colors.white)),
+                        Text('حصصي', style: AppTypography.headline.copyWith(color: Colors.white)),
                         const SizedBox(height: 2),
                         Text(
                           'استمر من حيث توقفت 🎯',
@@ -118,8 +119,7 @@ class _MyCoursesScreenState extends State<MyCoursesScreen> {
                 ),
               ),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }

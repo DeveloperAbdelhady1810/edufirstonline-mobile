@@ -47,11 +47,15 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   Widget build(BuildContext context) {
     final userName = context.watch<AuthService>().currentUser?.name.split(' ').first ?? '';
 
-    return Scaffold(
-      body: SafeArea(
-        child: RefreshIndicator(
-          color: AppColors.primary,
-          onRefresh: _refresh,
+    // No Scaffold here on purpose - this screen only ever lives inside
+    // AppShell's IndexedStack, which already has the one real Scaffold
+    // (with the persistent bottom nav). A second, nested Scaffold here
+    // used to double up keyboard-inset handling and could make the outer
+    // bottom nav bar intermittently disappear/misbehave.
+    return SafeArea(
+      child: RefreshIndicator(
+        color: AppColors.primary,
+        onRefresh: _refresh,
           child: FutureBuilder<DashboardData>(
             future: _future,
             builder: (context, snapshot) {
@@ -78,7 +82,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                           children: [
                             StatChip(
                               value: '${data?.enrolled ?? 0}',
-                              label: 'دوراتي',
+                              label: 'حصصي',
                               icon: Icons.menu_book_rounded,
                             ),
                             StatChip(
@@ -137,7 +141,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                             _QuickActionCard(
                               icon: Icons.video_library_rounded,
                               iconBg: AppColors.secondary,
-                              label: 'دوراتي',
+                              label: 'حصصي',
                               onTap: () => Navigator.of(context).push(
                                 MaterialPageRoute(builder: (_) => const MyCoursesScreen()),
                               ),
@@ -168,7 +172,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             },
           ),
         ),
-      ),
     );
   }
 }

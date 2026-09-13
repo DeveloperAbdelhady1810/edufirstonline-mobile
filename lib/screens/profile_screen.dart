@@ -39,12 +39,13 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = context.watch<AuthService>().currentUser;
 
-    return Scaffold(
-      body: SafeArea(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DecorativeHeader(
+    // No Scaffold here - lives inside AppShell's IndexedStack, which
+    // already provides the one real Scaffold + persistent bottom nav.
+    return SafeArea(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DecorativeHeader(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -113,8 +114,7 @@ class ProfileScreen extends StatelessWidget {
                 ],
               ),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }
