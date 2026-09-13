@@ -13,9 +13,13 @@ import '../widgets/app_text_field.dart';
 import '../widgets/decorative_header.dart';
 import 'app_shell.dart';
 
-/// Student sign-up - fields match exactly what `POST /auth/register/student`
-/// accepts (name, email, password, phone, grade, education_stage, gender,
-/// age). No extra fields invented beyond what the API validates.
+/// Student sign-up - fields match the REAL website registration exactly
+/// (App\Http\Controllers\Auth\AuthController::registerStudent() +
+/// StudentRegistrationRequest), not the simplified subset the mobile API
+/// endpoint originally implemented. That endpoint has since been corrected
+/// server-side to accept/require the same fields: parent_phone (a linked
+/// parent account is created, same as the website), division (only for
+/// grades that have one), study_mode, school, and an optional address.
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -27,12 +31,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
+  final _parentPhoneController = TextEditingController();
   final _passwordController = TextEditingController();
   final _ageController = TextEditingController();
+  final _schoolController = TextEditingController();
+  final _addressController = TextEditingController();
 
   EducationStage? _stage;
   EducationGrade? _grade;
+  EducationDivision? _division;
   String? _gender;
+  String? _studyMode;
   bool _isLoading = false;
 
   @override
@@ -40,20 +49,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _nameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
+    _parentPhoneController.dispose();
     _passwordController.dispose();
     _ageController.dispose();
+    _schoolController.dispose();
+    _addressController.dispose();
     super.dispose();
   }
+
+  bool get _needsDivision => _grade != null && _grade!.divisions.isNotEmpty;
 
   Future<void> _handleRegister() async {
     if (_nameController.text.trim().isEmpty ||
         _emailController.text.trim().isEmpty ||
         _phoneController.text.trim().isEmpty ||
+        _parentPhoneController.text.trim().isEmpty ||
         _passwordController.text.isEmpty ||
         _ageController.text.trim().isEmpty ||
+        _schoolController.text.trim().isEmpty ||
         _stage == null ||
         _grade == null ||
-        _gender == null) {
+        _gender == null ||
+        _studyMode == null ||
+        (_needsDivision && _division == null)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('يرجى تعبئة جميع الحقول')),
       );
@@ -67,10 +85,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
         'email': _emailController.text.trim(),
         'password': _passwordController.text,
         'phone': _phoneController.text.trim(),
+        'parent_phone': _parentPhoneController.text.trim(),
         'education_stage': _stage!.key,
         'grade': _grade!.key,
+        if (_division != null) 'division': _division!.key,
+        'study_mode': _studyMode,
+        'school': _schoolController.text.trim(),
         'gender': _gender,
         'age': int.tryParse(_ageController.text.trim()) ?? 15,
+        if (_addressController.text.trim().isNotEmpty) 'address': _addressController.text.trim(),
       });
       if (!mounted) return;
       Navigator.of(context).pushAndRemoveUntil(
@@ -96,7 +119,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 AppSpacing.pageHorizontal,
                 AppSpacing.lg,
                 AppSpacing.pageHorizontal,
-                AppSpacing.xl,
+                AppSpacing.lg,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -108,9 +131,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       icon: const Icon(Icons.arrow_forward, color: Colors.white),
                     ),
                   ),
-                  const Icon(Icons.person_add_alt_1_rounded, size: 48, color: Colors.white),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text('إنشاء حساب جديد', style: AppTypography.headline.copyWith(color: Colors.white)),
+                  const Icon(Icons.person_add_alt_1_rounded, size: 40, color: Colors.white),
+                  const SizedBox(height: AppSpacing.xs),
+                  Text('إنشاء حساب جديد', style: AppTypography.title.copyWith(color: Colors.white)),
                   const SizedBox(height: 2),
                   Text(
                     'انضم لآلاف الطلاب في رحلتهم التعليمية',
@@ -125,6 +148,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    _SectionLabel('البيانات الشخصية'),
+                    const SizedBox(height: AppSpacing.sm),
                     AppTextField(
                       label: 'الاسم بالكامل',
                       hint: 'أدخل اسمك بالكامل',
@@ -141,47 +166,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ).animate().fadeIn(delay: 50.ms, duration: 250.ms),
                     const SizedBox(height: AppSpacing.lg),
                     AppTextField(
-                      label: 'رقم الهاتف',
-                      hint: '01xxxxxxxxx',
-                      controller: _phoneController,
-                      keyboardType: TextInputType.phone,
-                      prefixIcon: Icons.phone_outlined,
-                    ).animate().fadeIn(delay: 100.ms, duration: 250.ms),
-                    const SizedBox(height: AppSpacing.lg),
-                    AppTextField(
                       label: 'كلمة المرور',
                       hint: '8 أحرف على الأقل',
                       controller: _passwordController,
                       obscureText: true,
                       prefixIcon: Icons.lock_outline,
-                    ).animate().fadeIn(delay: 150.ms, duration: 250.ms),
-                    const SizedBox(height: AppSpacing.lg),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _Dropdown<EducationStage>(
-                            label: 'المرحلة',
-                            value: _stage,
-                            items: EducationData.stages,
-                            itemLabel: (s) => s.nameAr,
-                            onChanged: (s) => setState(() {
-                              _stage = s;
-                              _grade = null;
-                            }),
-                          ),
-                        ),
-                        const SizedBox(width: AppSpacing.md),
-                        Expanded(
-                          child: _Dropdown<EducationGrade>(
-                            label: 'الصف',
-                            value: _grade,
-                            items: _stage?.grades ?? const [],
-                            itemLabel: (g) => g.nameAr,
-                            onChanged: (g) => setState(() => _grade = g),
-                          ),
-                        ),
-                      ],
-                    ).animate().fadeIn(delay: 200.ms, duration: 250.ms),
+                    ).animate().fadeIn(delay: 100.ms, duration: 250.ms),
                     const SizedBox(height: AppSpacing.lg),
                     Row(
                       children: [
@@ -205,13 +195,99 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         ),
                       ],
+                    ).animate().fadeIn(delay: 150.ms, duration: 250.ms),
+
+                    const SizedBox(height: AppSpacing.xl),
+                    _SectionLabel('بيانات التواصل'),
+                    const SizedBox(height: AppSpacing.sm),
+                    AppTextField(
+                      label: 'رقم هاتفك',
+                      hint: '01xxxxxxxxx',
+                      controller: _phoneController,
+                      keyboardType: TextInputType.phone,
+                      prefixIcon: Icons.phone_outlined,
+                    ).animate().fadeIn(delay: 200.ms, duration: 250.ms),
+                    const SizedBox(height: AppSpacing.lg),
+                    AppTextField(
+                      label: 'رقم هاتف ولي الأمر',
+                      hint: '01xxxxxxxxx (مختلف عن رقمك)',
+                      controller: _parentPhoneController,
+                      keyboardType: TextInputType.phone,
+                      prefixIcon: Icons.family_restroom_rounded,
                     ).animate().fadeIn(delay: 250.ms, duration: 250.ms),
+
+                    const SizedBox(height: AppSpacing.xl),
+                    _SectionLabel('البيانات الدراسية'),
+                    const SizedBox(height: AppSpacing.sm),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _Dropdown<EducationStage>(
+                            label: 'المرحلة',
+                            value: _stage,
+                            items: EducationData.stages,
+                            itemLabel: (s) => s.nameAr,
+                            onChanged: (s) => setState(() {
+                              _stage = s;
+                              _grade = null;
+                              _division = null;
+                            }),
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.md),
+                        Expanded(
+                          child: _Dropdown<EducationGrade>(
+                            label: 'الصف',
+                            value: _grade,
+                            items: _stage?.grades ?? const [],
+                            itemLabel: (g) => g.nameAr,
+                            onChanged: (g) => setState(() {
+                              _grade = g;
+                              _division = null;
+                            }),
+                          ),
+                        ),
+                      ],
+                    ).animate().fadeIn(delay: 300.ms, duration: 250.ms),
+                    if (_needsDivision) ...[
+                      const SizedBox(height: AppSpacing.lg),
+                      _Dropdown<EducationDivision>(
+                        label: 'الشعبة',
+                        value: _division,
+                        items: _grade?.divisions ?? const [],
+                        itemLabel: (d) => d.nameAr,
+                        onChanged: (d) => setState(() => _division = d),
+                      ).animate().fadeIn(duration: 200.ms),
+                    ],
+                    const SizedBox(height: AppSpacing.lg),
+                    _Dropdown<String>(
+                      label: 'نظام الدراسة',
+                      value: _studyMode,
+                      items: const ['center', 'online'],
+                      itemLabel: (m) => m == 'center' ? 'مركز' : 'أونلاين',
+                      onChanged: (m) => setState(() => _studyMode = m),
+                    ).animate().fadeIn(delay: 350.ms, duration: 250.ms),
+                    const SizedBox(height: AppSpacing.lg),
+                    AppTextField(
+                      label: 'اسم المدرسة',
+                      hint: 'أدخل اسم مدرستك',
+                      controller: _schoolController,
+                      prefixIcon: Icons.school_outlined,
+                    ).animate().fadeIn(delay: 400.ms, duration: 250.ms),
+                    const SizedBox(height: AppSpacing.lg),
+                    AppTextField(
+                      label: 'العنوان (اختياري)',
+                      hint: 'المحافظة / الحي',
+                      controller: _addressController,
+                      prefixIcon: Icons.location_on_outlined,
+                    ).animate().fadeIn(delay: 450.ms, duration: 250.ms),
+
                     const SizedBox(height: AppSpacing.xl),
                     AppButton(
                       label: 'إنشاء الحساب',
                       isLoading: _isLoading,
                       onPressed: _handleRegister,
-                    ).animate().fadeIn(delay: 300.ms, duration: 250.ms),
+                    ).animate().fadeIn(delay: 500.ms, duration: 250.ms),
                     const SizedBox(height: AppSpacing.lg),
                   ],
                 ),
@@ -221,6 +297,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
     );
+  }
+}
+
+class _SectionLabel extends StatelessWidget {
+  const _SectionLabel(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(text, style: AppTypography.body.copyWith(fontWeight: FontWeight.w800, color: AppColors.primaryDark));
   }
 }
 

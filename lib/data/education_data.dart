@@ -2,11 +2,24 @@
 /// subject keys are not exposed by any API endpoint, so this is a deliberate
 /// client-side mirror of existing config data for dropdowns/labels - not a
 /// new backend concept). Keep in sync if that config file ever changes.
-class EducationGrade {
-  const EducationGrade({required this.key, required this.nameAr});
+class EducationDivision {
+  const EducationDivision({required this.key, required this.nameAr});
 
   final String key;
   final String nameAr;
+}
+
+class EducationGrade {
+  const EducationGrade({required this.key, required this.nameAr, this.divisions = const []});
+
+  final String key;
+  final String nameAr;
+
+  /// Empty for every preparatory grade and populated for every secondary
+  /// grade - mirrors config/education.php exactly. The register form only
+  /// shows/requires a division picker when this is non-empty, matching the
+  /// real backend's conditional validation rule.
+  final List<EducationDivision> divisions;
 }
 
 class EducationStage {
@@ -38,9 +51,35 @@ class EducationData {
       key: 'secondary',
       nameAr: 'ثانوي',
       grades: [
-        EducationGrade(key: 'grade_1', nameAr: 'اولى ثانوي'),
-        EducationGrade(key: 'grade_2', nameAr: 'تانية ثانوي'),
-        EducationGrade(key: 'grade_3', nameAr: 'تالتة ثانوي'),
+        EducationGrade(
+          key: 'grade_1',
+          nameAr: 'اولى ثانوي',
+          divisions: [
+            EducationDivision(key: 'general', nameAr: 'ثانوي عام'),
+            EducationDivision(key: 'baccalaureate', nameAr: 'بكالوريا'),
+          ],
+        ),
+        EducationGrade(
+          key: 'grade_2',
+          nameAr: 'تانية ثانوي',
+          // بكالوريا only from this grade on - these are the بكالوريا
+          // مسارات (tracks), not the old علمي/ادبي split.
+          divisions: [
+            EducationDivision(key: 'medicine_life_sciences', nameAr: 'طب وعلوم حياة'),
+            EducationDivision(key: 'engineering_computer_science', nameAr: 'هندسة وعلوم الحاسب'),
+            EducationDivision(key: 'business', nameAr: 'الأعمال'),
+            EducationDivision(key: 'arts_humanities', nameAr: 'الأداب والفنون'),
+          ],
+        ),
+        EducationGrade(
+          key: 'grade_3',
+          nameAr: 'تالتة ثانوي',
+          divisions: [
+            EducationDivision(key: 'science', nameAr: 'علمي علوم'),
+            EducationDivision(key: 'math', nameAr: 'علمي رياضة'),
+            EducationDivision(key: 'literary', nameAr: 'ادبي'),
+          ],
+        ),
       ],
     ),
   ];
