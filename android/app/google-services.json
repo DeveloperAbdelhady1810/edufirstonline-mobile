@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "172268284837",
+    "project_id": "edufirstonline-mobile",
+    "storage_bucket": "edufirstonline-mobile.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:172268284837:android:ddaf22c46fc7f9b162564c",
+        "android_client_info": {
+          "package_name": "net.quadrocloud.edufirstonline.mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD13_GGLkG22_azgxuhtqI7c_lRKHc4NkY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

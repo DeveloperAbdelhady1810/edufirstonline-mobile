@@ -59,7 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
       await context.read<AuthService>().login(email: email, password: password);
       if (!mounted) return;
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const AppShell()),
+        MaterialPageRoute(builder: (_) => AppShell()),
         (route) => false,
       );
     } on ApiException catch (e) {

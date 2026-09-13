@@ -57,6 +57,14 @@ dependencies:
                               # payment endpoints exist - this reuses the web
                               # flow as-is instead of inventing new API surface)
 
+  # --- Push notifications ---
+  firebase_core: ^4.14.0
+  firebase_messaging: ^16.6.0
+  flutter_local_notifications: ^20.1.0 # shows a heads-up banner while the
+                              # app is in the foreground - FCM alone only
+                              # auto-displays notifications in background/
+                              # terminated state
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
