@@ -51,6 +51,11 @@ dependencies:
   cached_network_image: ^3.4.1 # thumbnails with placeholder + fade-in
   fl_chart: ^0.69.2           # progress/streak/leaderboard visuals
   flutter_svg: ^2.0.14        # crisp vector icons
+  webview_flutter: ^4.10.0    # renders the existing web lecture player + Paymob
+                              # checkout inside the app via the backend's
+                              # mobile/webview-ticket bridge (no native video/
+                              # payment endpoints exist - this reuses the web
+                              # flow as-is instead of inventing new API surface)
 
 dev_dependencies:
   flutter_test:

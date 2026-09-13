@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lottie/lottie.dart';
+import 'package:provider/provider.dart';
 
+import '../services/api_client.dart';
+import '../services/auth_service.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_typography.dart';
 import '../widgets/app_button.dart';
 import '../widgets/app_text_field.dart';
+import '../widgets/decorative_header.dart';
+import 'app_shell.dart';
+import 'register_screen.dart';
 
 /// Flagship screen (Step 4 checkpoint) - first impression of the app, and
 /// the one screen meant to showcase every element of the design system at
@@ -38,15 +44,30 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleLogin() async {
+    final email = _identifierController.text.trim();
+    final password = _passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('يرجى إدخال البريد الإلكتروني وكلمة المرور')),
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
-    // TODO(backend-integration): replace with a real POST /api/auth/login
-    // call once Step 4 is approved and the app moves on to Step 5.
-    await Future.delayed(const Duration(milliseconds: 1200));
-    if (!mounted) return;
-    setState(() => _isLoading = false);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('تسجيل الدخول تجريبي فقط - لم يتم ربط الخادم بعد')),
-    );
+    try {
+      await context.read<AuthService>().login(email: email, password: password);
+      if (!mounted) return;
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const AppShell()),
+        (route) => false,
+      );
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -83,8 +104,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           ).animate().fadeIn(delay: 200.ms, duration: 300.ms),
                           const SizedBox(height: AppSpacing.xl),
                           AppTextField(
-                            label: 'رقم الهاتف أو البريد الإلكتروني',
-                            hint: 'أدخل رقم هاتفك أو بريدك الإلكتروني',
+                            label: 'البريد الإلكتروني',
+                            hint: 'أدخل بريدك الإلكتروني',
                             controller: _identifierController,
                             prefixIcon: Icons.person_outline,
                             keyboardType: TextInputType.emailAddress,
@@ -124,7 +145,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             children: [
                               Text('ليس لديك حساب؟', style: AppTypography.bodySmall),
                               TextButton(
-                                onPressed: () {},
+                                onPressed: () => Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                                ),
                                 child: const Text('إنشاء حساب جديد'),
                               ),
                             ],
@@ -149,41 +172,11 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: const BorderRadius.only(
-        bottomLeft: Radius.circular(AppSpacing.radiusXl),
-        bottomRight: Radius.circular(AppSpacing.radiusXl),
-      ),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
-        decoration: const BoxDecoration(gradient: AppColors.primaryGradient),
-        child: Stack(
-          clipBehavior: Clip.none,
-          alignment: Alignment.center,
-          children: [
-            // Decorative translucent shapes - the difference between a flat
-            // corporate gradient banner and a hero that feels made for a
-            // student app. Purely decorative, doesn't affect layout.
-            Positioned(
-              top: -30,
-              left: -20,
-              child: _Blob(size: 100, opacity: 0.10),
-            ),
-            Positioned(
-              top: 20,
-              right: -35,
-              child: _Blob(size: 130, opacity: 0.12),
-            ),
-            Positioned(
-              bottom: -40,
-              right: 40,
-              child: _Blob(size: 80, opacity: 0.08),
-            ),
-
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
+    return DecorativeHeader(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
                 // Placeholder welcome animation - swap for a branded/
                 // education-themed Lottie once one is chosen; this one is
                 // only confirmed stable and free to use (hosted in the
@@ -238,29 +231,7 @@ class _Header extends StatelessWidget {
                   ],
                 ).animate().fadeIn(delay: 250.ms, duration: 350.ms).slideY(
                     begin: 0.2, end: 0, delay: 250.ms, duration: 350.ms),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _Blob extends StatelessWidget {
-  const _Blob({required this.size, required this.opacity});
-
-  final double size;
-  final double opacity;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: opacity),
-        shape: BoxShape.circle,
+        ],
       ),
     );
   }
