@@ -3,16 +3,21 @@ plugins {
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+    // Required so google-services.json's values are readable by the
+    // Firebase SDKs at runtime (push notifications).
+    id("com.google.gms.google-services")
 }
 
 android {
-    namespace = "com.edufirstonline.edufirstonline_mobile"
+    namespace = "net.quadrocloud.edufirstonline.mobile"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        // Required by flutter_local_notifications.
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -20,8 +25,10 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.edufirstonline.edufirstonline_mobile"
+        // Must match the Android app package registered in the Firebase
+        // project (net.quadrocloud.edufirstonline.mobile) exactly, or
+        // google-services.json won't bind to this app at all.
+        applicationId = "net.quadrocloud.edufirstonline.mobile"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -41,4 +48,8 @@ android {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }

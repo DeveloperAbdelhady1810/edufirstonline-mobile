@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/user.dart';
 import 'api_client.dart';
+import 'push_notification_service.dart';
 
 /// Single source of truth for "who is logged in" - the whole app listens to
 /// this via Provider instead of screens managing their own token state.
@@ -32,6 +35,7 @@ class AuthService extends ChangeNotifier {
       try {
         final data = await ApiClient.instance.get('/me') as Map<String, dynamic>;
         currentUser = AppUser.fromJson(data);
+        unawaited(PushNotificationService.instance.registerDeviceToken());
       } catch (_) {
         // Saved token is expired/revoked - fall back to logged-out silently,
         // the login screen is where the user finds out, not a startup error.
@@ -58,6 +62,7 @@ class AuthService extends ChangeNotifier {
   }
 
   Future<void> logout() async {
+    await PushNotificationService.instance.unregisterDeviceToken();
     try {
       await ApiClient.instance.post('/auth/logout');
     } catch (_) {
@@ -75,6 +80,7 @@ class AuthService extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_tokenPrefsKey, token);
     notifyListeners();
+    unawaited(PushNotificationService.instance.registerDeviceToken());
   }
 
   Future<void> _clearSession() async {

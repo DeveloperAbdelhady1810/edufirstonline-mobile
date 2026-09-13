@@ -1,3 +1,5 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -5,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import 'screens/splash_screen.dart';
 import 'services/auth_service.dart';
+import 'services/push_notification_service.dart';
 import 'theme/app_theme.dart';
 
 void main() async {
@@ -13,6 +16,14 @@ void main() async {
   // list, etc.) - without this, DateFormat throws at runtime instead of
   // just falling back to a default locale.
   await initializeDateFormatting('ar');
+
+  // Reads google-services.json (Android) / GoogleService-Info.plist (iOS)
+  // automatically - no explicit FirebaseOptions needed since this project
+  // uses the native config files directly rather than the FlutterFire CLI.
+  await Firebase.initializeApp();
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  await PushNotificationService.instance.initialize();
+
   runApp(const EduFirstOnlineApp());
 }
 
