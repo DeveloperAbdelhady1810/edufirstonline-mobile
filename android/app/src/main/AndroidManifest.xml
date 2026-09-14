@@ -30,6 +30,13 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- Tells FCM's own automatic background/terminated-state notification
+             display which channel to use - must match the AndroidNotificationChannel
+             id created in push_notification_service.dart (foreground display
+             creates/uses the same channel via flutter_local_notifications). -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="default_channel" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

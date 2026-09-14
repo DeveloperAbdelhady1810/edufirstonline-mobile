@@ -48,3 +48,6 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Gradle/Kotlin incremental compilation cache - not source, machine-specific.
+android/.kotlin/

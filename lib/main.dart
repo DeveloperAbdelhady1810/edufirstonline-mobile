@@ -1,6 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -27,19 +26,17 @@ void main() async {
 /// automatically - no explicit FirebaseOptions needed since this project
 /// uses the native config files directly rather than the FlutterFire CLI.
 ///
-/// Skipped entirely in debug builds: GoogleService-Info.plist still needs
-/// to be added as a bundled resource in the Xcode project by hand (a
-/// one-time manual step - see EDUFIRSTONLINE_UI_REVIEW.md), and until
-/// that's done on a given machine, Firebase.initializeApp() throws
-/// "core/not-initialized" on iOS. That's fine to hit while developing
-/// other features, but an uncaught exception here happens before runApp()
-/// even runs - it would otherwise crash the ENTIRE app before a single
-/// frame renders, not just disable push. The try/catch is kept even in
-/// release for the same reason: a push-setup problem should never be able
-/// to take the whole app down.
+/// Runs in every build mode, including debug - it used to skip debug builds
+/// entirely because GoogleService-Info.plist wasn't yet a bundled Xcode
+/// resource, which made Firebase.initializeApp() throw "core/not-initialized"
+/// on iOS before runApp() even ran, crashing the whole app. That's fixed now
+/// (the plist is registered in the Xcode project), but skipping debug builds
+/// meant push setup - and device-token registration - never ran during
+/// normal `flutter run` testing either, silently producing zero registered
+/// tokens. The try/catch below is the real safety net (kept in every build
+/// mode): a push-setup problem should never be able to take the whole app
+/// down, in debug or release.
 Future<void> _setUpPushNotifications() async {
-  if (kDebugMode) return;
-
   try {
     await Firebase.initializeApp();
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
