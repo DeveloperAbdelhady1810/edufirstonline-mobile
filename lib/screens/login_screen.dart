@@ -15,7 +15,6 @@ import '../theme/app_typography.dart';
 import '../widgets/app_button.dart';
 import '../widgets/app_text_field.dart';
 import '../widgets/decorative_header.dart';
-import 'app_shell.dart';
 import 'complete_social_profile_screen.dart';
 import 'register_screen.dart';
 
@@ -64,10 +63,16 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       await context.read<AuthService>().login(email: email, password: password);
       if (!mounted) return;
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => AppShell()),
-        (route) => false,
-      );
+      // Don't push a second AppShell() here - login() already called
+      // notifyListeners(), which SplashScreen's own Consumer<AuthService>
+      // reacts to by rendering AppShell() itself (see splash_screen.dart).
+      // Pushing another one too raced that rebuild: both AppShell()
+      // instances default to the SAME static GlobalKey (see app_shell.dart),
+      // and having two live at once threw a duplicate-GlobalKey error during
+      // build - invisible in a release build (renders as a blank/black
+      // screen), which is exactly what going back to the dashboard cleanly
+      // after an app restart (only ever one AppShell()) was masking.
+      Navigator.of(context).popUntil((route) => route.isFirst);
     } on ApiException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
@@ -86,10 +91,9 @@ class _LoginScreenState extends State<LoginScreen> {
         case SocialAuthLoggedIn(:final token, :final user):
           await context.read<AuthService>().persistSession(token, user);
           if (!mounted) return;
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (_) => AppShell()),
-            (route) => false,
-          );
+          // See the matching comment in _handleLogin() above - same
+          // duplicate-GlobalKey hazard, same fix.
+          Navigator.of(context).popUntil((route) => route.isFirst);
         case SocialAuthNeedsProfile(:final ticket, :final name, :final email):
           Navigator.of(context).push(
             MaterialPageRoute(

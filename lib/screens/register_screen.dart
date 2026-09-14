@@ -11,7 +11,6 @@ import '../theme/app_typography.dart';
 import '../widgets/app_button.dart';
 import '../widgets/app_text_field.dart';
 import '../widgets/decorative_header.dart';
-import 'app_shell.dart';
 
 /// Student sign-up - fields match the REAL website registration exactly
 /// (App\Http\Controllers\Auth\AuthController::registerStudent() +
@@ -96,10 +95,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
         if (_addressController.text.trim().isNotEmpty) 'address': _addressController.text.trim(),
       });
       if (!mounted) return;
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => AppShell()),
-        (route) => false,
-      );
+      // Don't push a second AppShell() - registerStudent() already called
+      // notifyListeners(), which SplashScreen's own Consumer<AuthService>
+      // reacts to by rendering AppShell() itself. Both would default to the
+      // same static GlobalKey (see app_shell.dart) if both got built at
+      // once - popping back to reveal the already-updated SplashScreen
+      // avoids ever constructing a second one.
+      Navigator.of(context).popUntil((route) => route.isFirst);
     } on ApiException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));

@@ -11,7 +11,6 @@ import '../theme/app_typography.dart';
 import '../widgets/app_button.dart';
 import '../widgets/app_text_field.dart';
 import '../widgets/decorative_header.dart';
-import 'app_shell.dart';
 
 /// Shown right after a brand-new Google/Apple sign-in (backend returned
 /// needs_profile: true) - collects the same student-profile fields the web's
@@ -94,10 +93,13 @@ class _CompleteSocialProfileScreenState extends State<CompleteSocialProfileScree
         'age': int.tryParse(_ageController.text.trim()) ?? 15,
       });
       if (!mounted) return;
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => AppShell()),
-        (route) => false,
-      );
+      // Don't push a second AppShell() - completeSocialProfile() already
+      // called notifyListeners(), which SplashScreen's own
+      // Consumer<AuthService> reacts to by rendering AppShell() itself.
+      // Both would default to the same static GlobalKey (see
+      // app_shell.dart) if both got built at once - popping back to reveal
+      // the already-updated SplashScreen avoids ever constructing a second.
+      Navigator.of(context).popUntil((route) => route.isFirst);
     } on ApiException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
