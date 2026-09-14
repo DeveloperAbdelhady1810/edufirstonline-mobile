@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -17,14 +18,35 @@ void main() async {
   // just falling back to a default locale.
   await initializeDateFormatting('ar');
 
-  // Reads google-services.json (Android) / GoogleService-Info.plist (iOS)
-  // automatically - no explicit FirebaseOptions needed since this project
-  // uses the native config files directly rather than the FlutterFire CLI.
-  await Firebase.initializeApp();
-  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-  await PushNotificationService.instance.initialize();
+  await _setUpPushNotifications();
 
   runApp(const EduFirstOnlineApp());
+}
+
+/// Reads google-services.json (Android) / GoogleService-Info.plist (iOS)
+/// automatically - no explicit FirebaseOptions needed since this project
+/// uses the native config files directly rather than the FlutterFire CLI.
+///
+/// Skipped entirely in debug builds: GoogleService-Info.plist still needs
+/// to be added as a bundled resource in the Xcode project by hand (a
+/// one-time manual step - see EDUFIRSTONLINE_UI_REVIEW.md), and until
+/// that's done on a given machine, Firebase.initializeApp() throws
+/// "core/not-initialized" on iOS. That's fine to hit while developing
+/// other features, but an uncaught exception here happens before runApp()
+/// even runs - it would otherwise crash the ENTIRE app before a single
+/// frame renders, not just disable push. The try/catch is kept even in
+/// release for the same reason: a push-setup problem should never be able
+/// to take the whole app down.
+Future<void> _setUpPushNotifications() async {
+  if (kDebugMode) return;
+
+  try {
+    await Firebase.initializeApp();
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+    await PushNotificationService.instance.initialize();
+  } catch (e, stackTrace) {
+    debugPrint('Push notification setup failed, continuing without it: $e\n$stackTrace');
+  }
 }
 
 class EduFirstOnlineApp extends StatelessWidget {
