@@ -33,6 +33,11 @@ migrate_working_dir/
 /build/
 /coverage/
 
+# Xcode's own build cache when building/running directly from Xcode
+# rather than `flutter build`/`flutter run` (PIFCache etc.) - not source,
+# machine-specific, and large; accidentally committed once already.
+ios/build/
+
 # Symbolication related
 app.*.symbols
 
