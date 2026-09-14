@@ -65,6 +65,15 @@ dependencies:
                               # auto-displays notifications in background/
                               # terminated state
 
+  # --- Google / Apple native sign-in ---
+  # Pinned to 6.x deliberately: 7.x replaces this with an
+  # Android-Credential-Manager-based API (initialize()/authenticate(),
+  # no serverClientId-driven signIn()) that needs its own separate native
+  # wiring - out of scope for this app's needs, which is simply a
+  # serverClientId'd idToken to hand to the backend.
+  google_sign_in: ^6.3.0
+  sign_in_with_apple: ^7.0.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

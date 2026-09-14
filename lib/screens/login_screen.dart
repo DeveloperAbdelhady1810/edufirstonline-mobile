@@ -1,3 +1,6 @@
+import 'dart:io' show Platform;
+
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lottie/lottie.dart';
@@ -5,6 +8,7 @@ import 'package:provider/provider.dart';
 
 import '../services/api_client.dart';
 import '../services/auth_service.dart';
+import '../services/social_auth_service.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_typography.dart';
@@ -12,6 +16,7 @@ import '../widgets/app_button.dart';
 import '../widgets/app_text_field.dart';
 import '../widgets/decorative_header.dart';
 import 'app_shell.dart';
+import 'complete_social_profile_screen.dart';
 import 'register_screen.dart';
 
 /// Flagship screen (Step 4 checkpoint) - first impression of the app, and
@@ -35,6 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _identifierController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
+  bool _isSocialLoading = false;
 
   @override
   void dispose() {
@@ -67,6 +73,42 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
     } finally {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _handleSocialResult(Future<SocialAuthResult> Function() signIn) async {
+    setState(() => _isSocialLoading = true);
+    try {
+      final result = await signIn();
+      if (!mounted) return;
+
+      switch (result) {
+        case SocialAuthLoggedIn(:final token, :final user):
+          await context.read<AuthService>().persistSession(token, user);
+          if (!mounted) return;
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => AppShell()),
+            (route) => false,
+          );
+        case SocialAuthNeedsProfile(:final ticket, :final name, :final email):
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => CompleteSocialProfileScreen(ticket: ticket, name: name, email: email),
+            ),
+          );
+      }
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+    } catch (e) {
+      // Covers SDK-level failures (user cancelled the native sheet, no
+      // Google account on device, etc.) that aren't an ApiException.
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تعذر تسجيل الدخول، حاول مرة أخرى')),
+      );
+    } finally {
+      if (mounted) setState(() => _isSocialLoading = false);
     }
   }
 
@@ -139,6 +181,28 @@ class _LoginScreenState extends State<LoginScreen> {
                               begin: 0.1, end: 0, delay: 400.ms, duration: 300.ms),
                           const SizedBox(height: AppSpacing.xl),
                           const _OrDivider().animate().fadeIn(delay: 450.ms),
+                          const SizedBox(height: AppSpacing.lg),
+                          AppButton(
+                            label: 'المتابعة عبر جوجل',
+                            variant: AppButtonVariant.secondary,
+                            icon: Icons.g_mobiledata_rounded,
+                            isLoading: _isSocialLoading,
+                            onPressed: () => _handleSocialResult(
+                              () => SocialAuthService.instance.signInWithGoogle(),
+                            ),
+                          ).animate().fadeIn(delay: 470.ms, duration: 300.ms),
+                          if (!kIsWeb && Platform.isIOS) ...[
+                            const SizedBox(height: AppSpacing.sm),
+                            AppButton(
+                              label: 'المتابعة عبر آبل',
+                              variant: AppButtonVariant.secondary,
+                              icon: Icons.apple_rounded,
+                              isLoading: _isSocialLoading,
+                              onPressed: () => _handleSocialResult(
+                                () => SocialAuthService.instance.signInWithApple(),
+                              ),
+                            ).animate().fadeIn(delay: 490.ms, duration: 300.ms),
+                          ],
                           const SizedBox(height: AppSpacing.lg),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,

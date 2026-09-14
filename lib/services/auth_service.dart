@@ -61,6 +61,19 @@ class AuthService extends ChangeNotifier {
     await _persistSession(data['token'] as String, data['user'] as Map<String, dynamic>);
   }
 
+  /// Persists an already-issued {token, user} pair - shared by Google/Apple
+  /// sign-in (SocialAuthService) and /auth/social/complete-profile, so every
+  /// way of obtaining a session funnels through the same place that saves it
+  /// and registers the push-notification device token.
+  Future<void> persistSession(String token, Map<String, dynamic> userJson) =>
+      _persistSession(token, userJson);
+
+  Future<void> completeSocialProfile(Map<String, dynamic> payload) async {
+    final data =
+        await ApiClient.instance.post('/auth/social/complete-profile', payload) as Map<String, dynamic>;
+    await _persistSession(data['token'] as String, data['user'] as Map<String, dynamic>);
+  }
+
   Future<void> logout() async {
     await PushNotificationService.instance.unregisterDeviceToken();
     try {
