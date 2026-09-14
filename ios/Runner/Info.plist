@@ -58,5 +58,12 @@
 			</array>
 		</dict>
 	</array>
+	<!-- Lets iOS wake the app to process a push in the background/terminated
+	     state (matches Android's default_notification_channel_id fix) -
+	     without this, background pushes can be delayed or dropped. -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 </dict>
 </plist>

@@ -70,6 +70,11 @@ Reported as "notifications don't work." Two independent causes, both now fixed:
 
 **Still needed from you**: add the cron entry above in hPanel - without it, tokens will register correctly now, but nothing will actually be pushed until that runs automatically.
 
+**iOS equivalent of the same fixes** (all three above were Android-only or cross-platform; iOS had its own separate gaps, same category as the channel_id fix):
+- `ios/Runner/Runner.entitlements` was missing `aps-environment` entirely - without it, `FirebaseMessaging.getToken()` silently fails on a real device, no error surfaced anywhere. Added it (`development`; Xcode's own archive/export step switches this to `production` for an App Store build, so it doesn't need hand-flipping later).
+- `ios/Runner/Info.plist` was missing `UIBackgroundModes` → `remote-notification` - without it, background/terminated-state pushes can be delayed or dropped instead of waking the app reliably.
+- **Still needed from you (same category as the Sign In with Apple capability)**: in Xcode, Signing & Capabilities tab for the Runner target → **+ Capability** → add **Push Notifications**. This is what actually links the entitlement to your provisioning profile - the file-level change above isn't sufficient on its own. Push Notifications is enabled by default for most App IDs (unlike Sign In with Apple), so this is usually just the one Xcode toggle, no separate Developer Portal step - but worth checking your App ID's capabilities there if the toggle doesn't take.
+
 ## Google + Apple native sign-in - iOS Google config completed
 
 `ios/Runner/GoogleService-Info.plist` replaced with the version downloaded after enabling Google as a Firebase Auth provider (now carries `CLIENT_ID`/`REVERSED_CLIENT_ID`), and `ios/Runner/Info.plist` got the matching `CFBundleURLTypes` URL scheme entry so Google's SDK can receive the sign-in callback. Android SHA-1 fingerprint step is still pending (not needed until you build/test the Android side) - see the dedicated sign-in section above for the full remaining checklist (Apple Developer Portal capability + Xcode Signing & Capabilities).

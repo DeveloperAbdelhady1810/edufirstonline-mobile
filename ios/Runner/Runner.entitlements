@@ -6,5 +6,12 @@
 	<array>
 		<string>Default</string>
 	</array>
+	<!-- Required for APNs registration to work at all - without this key,
+	     FirebaseMessaging.getToken() silently fails on a real device. Set to
+	     "development" to match a debug/ad-hoc build; Xcode's own archive/
+	     export step switches this to "production" for an App Store build,
+	     so this value doesn't need to be hand-flipped for release. -->
+	<key>aps-environment</key>
+	<string>development</string>
 </dict>
 </plist>
