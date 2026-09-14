@@ -100,9 +100,14 @@ class _LoginScreenState extends State<LoginScreen> {
     } on ApiException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
-    } catch (e) {
+    } catch (e, stackTrace) {
       // Covers SDK-level failures (user cancelled the native sheet, no
       // Google account on device, etc.) that aren't an ApiException.
+      // Logged (not just swallowed) - this generic message deliberately
+      // hides the real cause from the user, but it must still be visible
+      // somewhere to diagnose from - check the device console/Xcode log
+      // for this line when reproducing a failure.
+      debugPrint('Social sign-in failed: $e\n$stackTrace');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('تعذر تسجيل الدخول، حاول مرة أخرى')),

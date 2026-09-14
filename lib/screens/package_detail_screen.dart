@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/package.dart';
 import '../services/api_client.dart';
 import '../services/directory_service.dart';
+import '../services/payment_status_service.dart';
 import '../services/webview_ticket_service.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_theme.dart';
@@ -13,6 +14,7 @@ import '../widgets/app_card.dart';
 import '../widgets/decorative_header.dart';
 import '../widgets/loading_skeleton.dart';
 import '../widgets/webview_screen.dart';
+import 'app_shell.dart';
 
 class PackageDetailScreen extends StatefulWidget {
   const PackageDetailScreen({super.key, required this.packageId});
@@ -42,15 +44,71 @@ class _PackageDetailScreenState extends State<PackageDetailScreen> {
     try {
       final url = await WebviewTicketService.instance.payPackageUrl(widget.packageId);
       if (!mounted) return;
-      await Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => AppWebviewScreen(url: url, title: 'إتمام الشراء')),
+      final result = await Navigator.of(context).push<PaymentResult>(
+        MaterialPageRoute(
+          builder: (_) => AppWebviewScreen(
+            url: url,
+            title: 'إتمام الشراء',
+            watchForPaymentReturn: true,
+          ),
+        ),
       );
       _refresh();
+      if (!mounted || result == null) return;
+      await _handlePaymentResult(result);
     } on ApiException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
     } finally {
       if (mounted) setState(() => _isPurchasing = false);
+    }
+  }
+
+  Future<void> _handlePaymentResult(PaymentResult result) async {
+    switch (result.status) {
+      case PaymentStatusValue.completed:
+        await showDialog<void>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            icon: const Icon(Icons.check_circle_rounded, color: AppColors.primary, size: 48),
+            title: const Text('تم الدفع بنجاح'),
+            content: const Text('تم تسجيلك في جميع حصص الباقة، يمكنك البدء في التعلم الآن.'),
+            actions: [
+              AppButton(
+                label: 'اذهب إلى حصصي',
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  // Pop this pushed detail screen back to the AppShell root
+                  // first - switching tabs underneath it would otherwise
+                  // stay hidden behind this screen.
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                  AppShell.goToTab(2);
+                },
+              ),
+            ],
+          ),
+        );
+        break;
+      case PaymentStatusValue.failed:
+        if (!mounted) return;
+        await showDialog<void>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            icon: const Icon(Icons.error_rounded, color: AppColors.error, size: 48),
+            title: const Text('فشلت عملية الدفع'),
+            content: const Text('لم تكتمل عملية الدفع. يمكنك المحاولة مرة أخرى.'),
+            actions: [
+              AppButton(label: 'حسنًا', onPressed: () => Navigator.of(ctx).pop()),
+            ],
+          ),
+        );
+        break;
+      case PaymentStatusValue.pending:
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('جاري تأكيد الدفع، تحقق مرة أخرى بعد قليل')),
+        );
+        break;
     }
   }
 
